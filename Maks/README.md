@@ -1,8 +1,8 @@
 ## Info
 
-"Com napisał... Napisałem"
+*"Com napisał... Napisałem"*
 
-
+------------------------------------------------------------------------------------------------
 **geoToLocal.py**
 
 Zamienia współrzędne geograficzne na lokalny układ współrzędnych, pewnie trzeba zrobić poprawki
