@@ -7,10 +7,11 @@ from sensor_msgs.msg import NavSatFix
 import serial
 from threading import Thread
 import csv
-from config import *
-from firebase_admin import credentials, firestore, initialize_app
-from pobierz_punkty_z_bazy_do_listy import points_targets_finished_mission
+# from config import *
 import math
+
+# from firebase_admin import credentials, firestore, initialize_app
+# from pobierz_punkty_z_bazy_do_listy import points_targets_finished_mission
 
 class Dog_data:
     def __init__(self) -> None:
@@ -18,12 +19,14 @@ class Dog_data:
         self.rate = rospy.Rate(30)
 
         self.bridge = CvBridge()
-        self.ser = serial.Serial('/dev/ttyUSB0', 9600)
+        self.bridge_cam360 = CvBridge()
+        # self.ser = serial.Serial('/dev/ttyUSB0', 9600)
         self.gps_msg = NavSatFix()
         """
         PUBLISHERS
         """
         self.image_pub = rospy.Publisher('camera/image', Image, queue_size=10)
+        self.image_pub_360 = rospy.Publisher('camera360/image', Image, queue_size=10)
         self.gps_pub = rospy.Publisher('gps/fix', NavSatFix, queue_size=10)
         # self.finished_mission_pub = rospy.Publisher('finished_drone_mission', Bool, queue_size=10)
 
@@ -31,17 +34,29 @@ class Dog_data:
         """
         SUBSRIBERS
         """
-        sub_gps = rospy.Subscriber('gps/fix', NavSatFix, self.gps_callback)
-        self.inter_finished = 0
+        self.sub_gps = rospy.Subscriber('gps/fix', NavSatFix, self.gps_callback)
+        
+        """
+        INIT
+        """
 
+        self.inter_finished = 0
         self.last_latitude = None
         self.last_longitude = None
         self.last_timestamp = None
 
         self.finished_drone_mission = False
-        self.gps_data_thread = Thread(target=self.publisher_nav, args=())
-        self.gps_data_thread.daemon = True
-        self.gps_data_thread.start()
+
+        """
+        THREADS
+        """
+        # self.gps_data_thread = Thread(target=self.publisher_nav, args=())
+        # self.gps_data_thread.daemon = True
+        # self.gps_data_thread.start()
+
+        self.camera_360 = Thread(target=self.publish_camera_video_360, args=())
+        self.camera_360.daemon = True
+        self.camera_360.start()
 
     def gps_callback(self, data):
         lat = data.latitude
@@ -52,7 +67,7 @@ class Dog_data:
         # Obliczanie prędkości
         speed = self.calculate_speed(lat, lon, timestamp)
 
-        if speed is not None:
+        if speed is not None and speed != 0:
             # Przetwarzanie prędkości
             # Tutaj można umieścić dowolny kod przetwarzania prędkości
             # Na przykład, wyświetlanie prędkości
@@ -66,7 +81,8 @@ class Dog_data:
         # Tutaj mozna umiescic dowolny kod przetwarzania danych
 
         # Przykladowe dzialanie - wyswietlanie danych
-        rospy.loginfo(f"Received GPS data: Latitude: {lat}, Longitude: {lon}, Altitude: {alt}")
+        if lat != 0 or lon != 0:
+            rospy.loginfo(f"Received GPS data: Latitude: {lat}, Longitude: {lon}, Altitude: {alt}")
 
 
 
@@ -81,40 +97,30 @@ class Dog_data:
                 # Konwersja ramki do formatu ROS
                 image_msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
                 self.image_pub.publish(image_msg)
-                # Publikowanie obrazu            
+            self.rate.sleep()     
+        camera.release()
 
-            if self.finished_drone_mission == True and self.inter_finished == 0 :
-                #pobierz dane z punktami z aplikacji oraz je wczytaj
-                points_targets_and_finished_drone_mission = points_targets_finished_mission()
-                if points_targets_and_finished_drone_mission[-1] == 1:
-                    points_targets_and_finished_drone_mission.pop()
-                    self.inter_finished += 1
-                    rospy.loginfo("Mission accepted")
+    def publish_camera_video_360(self):
+        rate = rospy.Rate(30)
+        camera = cv2.VideoCapture(2) 
+        while not rospy.is_shutdown():
+            ret, frame = camera.read()
 
-                    #tutaj dać algorytm do opymalizacji ścieżki
-                else:
-                    rospy.loginfo("WAIT FOR END OF DRONE MISSION")
-
-                
-
-
-
-            self.rate.sleep()
-
-        
-    
-        
+            if ret:
+                # Konwersja ramki do formatu ROS
+                image_msg = self.bridge_cam360.cv2_to_imgmsg(frame, encoding="bgr8")
+                self.image_pub_360.publish(image_msg)
+            rate.sleep()     
         camera.release()
 
     def publisher_nav(self):
         # def publish_gps_data():
-        gps_pub = rospy.Publisher('gps/fix', NavSatFix, queue_size=10)
-
+        gps_msg = NavSatFix()
         # Inicjalizacja polaczenia z portem szeregowym
         ser = serial.Serial('/dev/ttyUSB0', 9600)  # Zmien '/dev/ttyUSB0' na odpowiedni port szeregowy i predkosc transmisji (baud rate) 
         #                                                                               I PO PODPIECIU DAC: sudo chmod 666 ${WSTAW NAZWE NASZEGO URZADZENIA}, bo inaczej sie pulta ze nie ma uprawnien
 
-        rate = rospy.Rate(10)  # Czestotliwosc publikacji (10 Hz)
+        rate = rospy.Rate(1)  # Czestotliwosc publikacji (10 Hz)
 
         while not rospy.is_shutdown():
             # Odczytanie danych z GPS-a przez port szeregowy
@@ -134,21 +140,33 @@ class Dog_data:
                         alt = float(data[9])
 
                         # Tworzenie wiadomosci NavSatFix
-                        gps_msg = NavSatFix()
+                        
                         gps_msg.header.stamp = rospy.Time.now()
                         gps_msg.latitude = lat
                         gps_msg.longitude = lon
                         gps_msg.altitude = alt
                         # Publikowanie danych GPS
-                        gps_pub.publish(gps_msg)
+                        
                     except ValueError:
-                        rospy.loginfo("Error when converting, next time it will be OK")
-
+                        pass
+            self.gps_pub.publish(gps_msg)
             rate.sleep()
 
         # Zamykanie polaczenia z portem szeregowym
         ser.close()
 
+    def pub_finsihed_mission(self):
+        if self.finished_drone_mission == True and self.inter_finished == 0 :
+            #pobierz dane z punktami z aplikacji oraz je wczytaj
+            points_targets_and_finished_drone_mission = points_targets_finished_mission()
+            if points_targets_and_finished_drone_mission[-1] == 1:
+                points_targets_and_finished_drone_mission.pop()
+                self.inter_finished += 1
+                rospy.loginfo("Mission accepted")
+
+                #tutaj dać algorytm do opymalizacji ścieżki
+            else:
+                rospy.loginfo("WAIT FOR END OF DRONE MISSION")
 
     def calculate_speed(self, latitude, longitude, timestamp):
         if self.last_latitude is None or self.last_longitude is None or self.last_timestamp is None:
@@ -170,9 +188,13 @@ class Dog_data:
         distance = earth_radius * c
 
         # Obliczanie prędkości w metrach na sekundę
-        speed = distance / d_time
+        if d_time != 0:
+            speed = distance / d_time
+        else:
+            speed = 0
 
         return speed
+    
 
 if __name__ == '__main__':
 
