@@ -1,3 +1,5 @@
+#reading data from csv, storing in 'latitude_longitude_list' and printing
+
 import csv
 from config import *
 from firebase_admin import credentials, firestore
@@ -12,7 +14,7 @@ headers = ["img", "location", "name", "shooted", "timestamp", "type"]
 
 # Read the data from the CSV file
 data = []
-data_readable=[]
+latitude_longitude_list=[]
 with open(csv_file, mode="r") as file:
     reader = csv.DictReader(file)
     for row in reader:
@@ -25,26 +27,8 @@ with open(csv_file, mode="r") as file:
         row['timestamp'] = firestore.SERVER_TIMESTAMP
         row['shooted'] = row['shooted'].lower() == 'true'
         data.append(dict(row))
-        # print(latitude, ',', longitude, ',', row["shooted"])
-        tmp_dict['latitude']=latitude
-        tmp_dict['longitude']=longitude
-        tmp_dict["shooted"]=row["shooted"]
-        data_readable.append(tmp_dict)
+        latitude_longitude_list.append([latitude, longitude])
 
-for tmp_dict in data_readable:   
-    # latitude, longitude, shooted from tmp_dict
-    for x in tmp_dict:
-        print(tmp_dict[x], end=', ')
-    print()
+print(latitude_longitude_list)
 
-# Verify CSV compatibility by checking if headers match
-if reader.fieldnames != headers:
-    print("CSV file is not compatible with the model. Aborting.")
-    exit()
-
-# # Upload records from the CSV file to Firebase
-# collection_ref = db.collection(collection_name)
-# for item in data:
-#     collection_ref.add(item)
-
-# print("Data uploaded to Firebase successfully.")
+print("Data read from Firebase successfully.")
