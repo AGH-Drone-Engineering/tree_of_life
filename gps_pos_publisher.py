@@ -6,6 +6,7 @@ import cv2
 from sensor_msgs.msg import NavSatFix
 import serial
 from threading import Thread
+from std_msgs.msg import Float64MultiArray, Bool
 
 class Dog_data:
     def __init__(self) -> None:
@@ -16,12 +17,20 @@ class Dog_data:
         self.gps_msg = NavSatFix()
         self.image_pub = rospy.Publisher('camera/image', Image, queue_size=10)
         self.gps_pub = rospy.Publisher('gps/fix', NavSatFix, queue_size=10)
-
+        self.finished_mission_pub = rospy.Publisher('finished_drone_mission', Bool, queue_size=10)
+        self.inter_finished = 0
+        self.finished_drone_mission = False
         self.gps_data_thread = Thread(target=self.publisher_nav, args=())
         self.gps_data_thread.daemon = True
         self.gps_data_thread.start()
 
+    def sub_finished_mission_data_from_app(self):
         
+        
+        self.finished_drone_mission = True
+        pass
+
+
     def publish_camera_video(self):
         camera = cv2.VideoCapture(0)  # Ustawienie parametru na 0 oznacza użycie domyślnej kamery
 
@@ -34,10 +43,20 @@ class Dog_data:
                 image_msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
                 self.image_pub.publish(image_msg)
                 # Publikowanie obrazu            
-            
+
+
+            #tutaj napisać funkcję która ściąga informację czy misja została wykonan z drona latającego 
+            if self.finished_drone_mission == True and self.inter_finished == 0 :
+                #pobierz dane z punktami z aplikacji oraz je wczytaj
+
+                self.inter_finished += 1
+
+
+
             self.rate.sleep()
 
         
+    
         
         camera.release()
 
@@ -83,7 +102,9 @@ class Dog_data:
 
         # Zamykanie polaczenia z portem szeregowym
         ser.close()
-        
+
+
+
 
 if __name__ == '__main__':
     # try:
