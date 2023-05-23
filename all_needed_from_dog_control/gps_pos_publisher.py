@@ -9,9 +9,10 @@ from threading import Thread
 import csv
 # from config import *
 import math
-
-# from firebase_admin import credentials, firestore, initialize_app
-# from pobierz_punkty_z_bazy_do_listy import points_targets_finished_mission
+from doggy import Walk, Doggy, DoggyAction, walk_forward
+from geoToLocal import geo_to_vector
+from firebase_fun import *
+import numpy as np
 
 class Dog_data:
     def __init__(self) -> None:
@@ -57,6 +58,18 @@ class Dog_data:
         self.camera_360 = Thread(target=self.publish_camera_video_360, args=())
         self.camera_360.daemon = True
         self.camera_360.start()
+
+        self.mission_control = Thread(target=self.mission, args=())
+        self.mission_control.daemon = True
+        self.mission_control.start()
+
+
+        #inicjalizacja psa i połączenia z nim
+        self.doggy = Doggy()
+        self.doggy.wait_connected()
+        self.doggy.send_action(DoggyAction.WALK)
+
+        self.start_mission = False
 
     def gps_callback(self, data):
         lat = data.latitude
@@ -155,19 +168,6 @@ class Dog_data:
         # Zamykanie polaczenia z portem szeregowym
         ser.close()
 
-    def pub_finsihed_mission(self):
-        if self.finished_drone_mission == True and self.inter_finished == 0 :
-            #pobierz dane z punktami z aplikacji oraz je wczytaj
-            points_targets_and_finished_drone_mission = points_targets_finished_mission()
-            if points_targets_and_finished_drone_mission[-1] == 1:
-                points_targets_and_finished_drone_mission.pop()
-                self.inter_finished += 1
-                rospy.loginfo("Mission accepted")
-
-                #tutaj dać algorytm do opymalizacji ścieżki
-            else:
-                rospy.loginfo("WAIT FOR END OF DRONE MISSION")
-
     def calculate_speed(self, latitude, longitude, timestamp):
         if self.last_latitude is None or self.last_longitude is None or self.last_timestamp is None:
             # Brak poprzednich danych, nie można obliczyć prędkości
@@ -194,7 +194,43 @@ class Dog_data:
             speed = 0
 
         return speed
-    
+
+    def move_dog(self, x_target, y_target):
+        #obliczenie pozycji celu względem psa (pies zawsze ma pozycję 0, 0)
+
+        velocity, yaw_velocity = walk_forward(self.theta, [x_target, y_target], [0, 0])
+        try:
+            self.doggy.send_stick(0, velocity, yaw_velocity, 0)
+            rospy.sleep(0.1)
+            #obliczenie dystansu pomiędzy punktami
+        except KeyboardInterrupt:
+            for _ in range(10):
+                rospy.sleep(0.1)
+                self.doggy.send_stick(0, 0, 0, 0)
+
+    def mission(self):
+        while not rospy.is_shutdown() and self.start_mission == False:
+            if is_drone_on_ground():
+                self.start_mission = True
+            else:
+                if self.start_mission:
+                    rospy.loginfo("DOG CAN START HIS MISSION")
+                else:
+                    rospy.logerror("ROSPY HAS PROBLEMS WITH COMMUNICATION")
+
+        i = 0
+        while not rospy.is_shutdown() and self.start_mission:
+            # tutaj dać algorytm do optymalizacji punktow i jak ma ona przebiegac 
+            points_to_walk = emum()
+            #TODO dokonczyc to 
+            target_i = points_to_walk[i]
+            position_target_lat, position_target_lon = target_i
+            x, y = geo_to_vector(self.position_dog_lat, self.position_dog_lon, position_target_lat, position_target_lon)
+            if np.sqrt((x) ** 2 + (y) ** 2) < 1:
+                i += 1
+            else:
+                self.move_dog(x, y)
+
 
 if __name__ == '__main__':
 
