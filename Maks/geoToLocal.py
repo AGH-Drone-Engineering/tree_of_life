@@ -34,8 +34,8 @@ def distance_haversine(lat1,lon1,lat2,lon2):
 
     # Tutaj wykorzystuje cos takiego jak "Haversine Formula" - jest na Wikipedia i StackOverflow
 
-    a = math.sin(delta_lat_rad/2)**2 + math.cos(lat1_rad)*math.cos(lat2_rad)*math.sin(delta_lon_rad)**2
-    c = 2*math.atan2(math.sqrt(a), math.sqrt(1-a))
+    a = math.sin(delta_lat_rad/2)**2 + math.cos(lat1_rad)*math.cos(lat2_rad)*math.sin(delta_lon_rad/2)**2
+    c = 2*math.asin(math.sqrt(a))
 
     # Zwracamy dystans między punktami
 
@@ -64,9 +64,9 @@ def geo_to_local(lat1,lon1,lat2,lon2):
 
     # Przerabiamy na metry
 
-    X, Y = geo_to_vector(lat1, lon1, lat2, lon2)
+    X,Y = geo_to_vector(lat1, lon1, lat2, lon2)
 
-    # Wyniki
+    # Wyniki - można zakomentować
 
     print(f"Wektor geograficzny: [{lat2 - lat1},{lon2 - lon1}]")
     print(f"Wektor w metrach: [{X:.4f},{Y:.4f}]")
@@ -75,14 +75,20 @@ def geo_to_local(lat1,lon1,lat2,lon2):
     print("")
     print(f"Współrzędne geograficzne:[{lat1},{lon1}],[{lat2},{lon2}]")
     print(f"Współrzędne lokalne:[0,0],[{X:.4f},{Y:.4f}]")
+    print("")
 
-    return 1
+    return X,Y
 
 ##################################################
 
-# Nasze współrzędne
+# Tutaj mamy podawanie danych wejściowych
 
-lat1, lon1 = 49.9285, 19.84829
-lat2, lon2 = 49.92806, 19.8558
+# Te dwa poniżej są przypisane na stałe
+#lat1, lon1 = 49.9285, 19.84829
+#lat2, lon2 = 49.92806, 19.8558
 
-geo_to_local(lat1,lon1,lat2,lon2)
+# Te pozwalają na pobieranie danych z inputu
+lat1,lon1,lat2,lon2 = list(map(float, input("Podaj [lat1,lon1,lat2,lon2]:\n").split()))
+
+# Funkcja zwracająca "wektor"
+print(geo_to_local(lat1,lon1,lat2,lon2))
