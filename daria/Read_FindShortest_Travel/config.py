@@ -9,8 +9,8 @@ mypath:str=str(os.path.dirname(__file__))+"\\"
 SERVICE_ACCOUNT_KEY=mypath+SERVICE_ACCOUNT_KEY
 
 # DB config
-# collection_name = "tree-points"
-collection_name = "lots-of-points"
+collection_name = "tree-points"
+# collection_name = "lots-of-points"
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate(SERVICE_ACCOUNT_KEY)

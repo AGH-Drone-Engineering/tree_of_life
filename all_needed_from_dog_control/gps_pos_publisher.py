@@ -229,7 +229,8 @@ class Dog_data:
             else:
                 if self.start_mission:
                     rospy.loginfo("DOG CAN START HIS MISSION")
-                    opt = optymalize_mission()
+                    self.set_home = [self.lat, self.lon]
+                    opt = optymalize_mission(self.set_home)
                 else:
                     rospy.logerror("ROSPY HAS PROBLEMS WITH COMMUNICATION")
 

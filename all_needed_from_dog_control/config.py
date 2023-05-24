@@ -6,8 +6,8 @@ DATABASE_URL = "https://droniada-test-2023.firebaseio.com"
 SERVICE_ACCOUNT_KEY = "key.json"
 
 # DB config
-# collection_name = "tree-points"
-collection_name = "lots-of-points"
+collection_name = "tree-points"
+# collection_name = "lots-of-points"
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate(SERVICE_ACCOUNT_KEY)

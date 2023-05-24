@@ -138,18 +138,18 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
     x = [xx[0] for xx in path_points]
     y = [yy[1] for yy in path_points]
 
-    # plt.xlim(BBox[0]-(BBox[1]-BBox[0])/10, BBox[1]+(BBox[1]-BBox[0])/10)
-    # plt.ylim(BBox[2]-(BBox[3]-BBox[2])/10, BBox[3]+(BBox[3]-BBox[2])/10)
+    plt.xlim(BBox[0]-(BBox[1]-BBox[0])/10, BBox[1]+(BBox[1]-BBox[0])/10)
+    plt.ylim(BBox[2]-(BBox[3]-BBox[2])/10, BBox[3]+(BBox[3]-BBox[2])/10)
 
-    # plt.scatter(x_all, y_all, marker='o', c='yellow') 
-    # color_now='brown'
-    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
-    # color_now='gold'
-    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
-    # # plt.plot(x, y, '-', '-r')
-    # plt.scatter(x, y, c='b', s=0.1)
-    # # plt.scatter(x_all, y_all, marker='o', c='g') 
-    # plt.show()
+    plt.scatter(x_all, y_all, marker='o', c='yellow') 
+    color_now='brown'
+    plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+    color_now='gold'
+    plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+    # plt.plot(x, y, '-', '-r')
+    plt.scatter(x, y, c='b', s=0.1)
+    # plt.scatter(x_all, y_all, marker='o', c='g') 
+    plt.show()
 
     return path_points
 
