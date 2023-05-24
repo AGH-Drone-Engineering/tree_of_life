@@ -34,6 +34,7 @@ warnings.filterwarnings("ignore")
 # print(tmpList)
 
 def main(mylist):
+
     if len(mylist)==1:
         return (
             len(mylist),0,0, 'Optimal'
@@ -48,7 +49,7 @@ def main(mylist):
 
     d = {"x": xlist, "y": ylist, "color": color_list, "shooted": shooted_list}
     df = pd.DataFrame(data=d)
-    print(df)
+    # print(df)
     # routes=[(0, 21), (1, 3), (2, 16), (3, 20), (4, 6), (5, 15), (6, 1), (7, 5), (8, 0), (9, 4), (10, 19), (11, 13), (12, 18), (13, 8), (14, 24), (15, 10), (16, 23), (17, 25), (18, 17), (19, 14), (20, 11), (21, 2), (22, 9), (23, 7), (24, 12), (25, 22)]
     # routes2=[(0, 8), (8, 3), (3, 2), (2, 1), (1, 7), (7, 5), (5, 6), (6, 4)]
     # routes3=[(0, 21), (21, 16), (16, 11), (11, 26), (26, 25), (25, 12), (12, 1), (1, 24), (24, 3), (3, 5), (5, 2), (2, 15), (15, 6), (6, 10), (10, 9), (9, 4), (4, 13), (13, 23), (23, 20), (20, 14), (14, 8), (8, 18), (18, 7), (7, 17), (17, 19), (19, 22)]
@@ -153,15 +154,16 @@ def main(mylist):
         result.append(next_tuple)
     routes=result
     path=[]
-    print(result)
+    # print(result)
     for tuple_ in result:
         path.append(mylist[tuple_[0]])
-        print(mylist[tuple_[0]])
+        ###INFO
+        # # print(mylist[tuple_[0]])
         
-    
-    fun.DrawRealMap3(df, None, routes)
+    ###INFO
+    # fun.DrawRealMap3(df, None, routes)
 
-    return mylist
+    return path
     # print (routes)
     # print("routes: ", routes)
     fun.DrawRealMap3(df, None, routes)
