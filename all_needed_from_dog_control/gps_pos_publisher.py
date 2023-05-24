@@ -83,11 +83,11 @@ class Dog_data:
         # Obliczanie prędkości
         speed = self.calculate_speed(self.lat, self.lon, timestamp)
 
-        if speed is not None and speed != 0:
+        # if speed is not None and speed != 0:
             # Przetwarzanie prędkości
             # Tutaj można umieścić dowolny kod przetwarzania prędkości
             # Na przykład, wyświetlanie prędkości
-            rospy.loginfo(f"Speed: {speed} m/s")
+            # rospy.loginfo(f"Speed: {speed} m/s")
 
         # Aktualizacja poprzednich danych
         self.last_latitude = self.lat
@@ -220,13 +220,14 @@ class Dog_data:
             else:
                 if self.start_mission:
                     rospy.loginfo("DOG CAN START HIS MISSION")
+                    opt = optymalize_mission()
                 else:
                     rospy.logerror("ROSPY HAS PROBLEMS WITH COMMUNICATION")
 
         i = 0
         while not rospy.is_shutdown() and self.start_mission:
             # tutaj dać algorytm do optymalizacji punktow i jak ma ona przebiegac 
-            points_to_walk = optymalize_mission()
+            points_to_walk = opt
             target_i = points_to_walk[i]
             position_target_lat, position_target_lon = target_i
             x, y = geo_to_vector(self.lat, self.lon, position_target_lat, position_target_lon)
@@ -234,6 +235,7 @@ class Dog_data:
                 i += 1
             else:
                 self.move_dog(x, y)
+                
 
 
 if __name__ == '__main__':
