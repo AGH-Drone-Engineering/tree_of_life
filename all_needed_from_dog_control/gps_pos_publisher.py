@@ -120,12 +120,21 @@ class Dog_data:
     def publish_camera_video_360(self):
         rate = rospy.Rate(30)
         camera = cv2.VideoCapture(2) 
+        
         while not rospy.is_shutdown():
             ret, frame = camera.read()
+            height, width, _ = frame.shape
+            half_width = width // 2
+            half_height = height // 2
 
             if ret:
+                half_frame_gora = frame[:half_height, :, :]
+                half_frame_dol_lewo = frame[half_height:, :half_width, :]
+                half_frame_dol_prawo = frame[half_height:, half_width:, :]
+
+                combined_horizontal = np.concatenate((half_frame_dol_prawo, half_frame_gora, half_frame_dol_lewo), axis=1)
                 # Konwersja ramki do formatu ROS
-                image_msg = self.bridge_cam360.cv2_to_imgmsg(frame, encoding="bgr8")
+                image_msg = self.bridge_cam360.cv2_to_imgmsg(combined_horizontal, encoding="bgr8")
                 self.image_pub_360.publish(image_msg)
             rate.sleep()     
         camera.release()
