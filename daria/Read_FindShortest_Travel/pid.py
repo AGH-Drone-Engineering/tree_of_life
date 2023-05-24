@@ -34,7 +34,7 @@ def check_if_is_close_to_any_point_in_list(point,all_points_list_, distance_, ex
         if distance_between_points(point,exclude)<distance_:
             continue
         if distance_between_points(p,point)<distance_:
-            print("Close to point:", p)
+            # print("Close to point:", p)
             return p
     return None
 
@@ -53,13 +53,13 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
     x_all = [float(xx[0]) for xx in all_points_list]
     y_all = [float(yy[1]) for yy in all_points_list]
 
-    plt.scatter(x_all, y_all, marker='o', c='yellow') 
+    # plt.scatter(x_all, y_all, marker='o', c='yellow') 
     
-    color_now='brown'
-    plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+    # color_now='brown'
+    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
     
-    color_now='gold'
-    plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+    # color_now='gold'
+    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
 
     
     BBox = (min(x_all), max(x_all), min(y_all), max(y_all))
@@ -79,14 +79,14 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
         # next_=np.array([float(color_points[i+1][0]),float(color_points[i+1][1])])
         
         # distance_=distance_between_points(step_point,next_)
-        print("step_point:",step_point)
-        print("next:",next_)
-        while distance_between_points(step_point, next_)>distance:
+        # print("step_point:",step_point)
+        # print("next:",next_)
+        while distance_between_points(step_point, next_) > distance:
             found_point=check_if_is_close_to_any_point_in_list(np.copy(step_point), tmp_all_points_list, distance, np.copy(start))
             
 
             if found_point is not None:
-                print(distance_between_vector_and_point(step_point,next_, found_point))
+                # print(distance_between_vector_and_point(step_point,next_, found_point))
                 angle_between_vectors=(get_angle_between_vectors(next_-step_point, found_point-step_point))
                 if angle_between_vectors>0:
 
@@ -126,10 +126,10 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
 
         #in this place we are close enough to aim
         #rotate dog and shoot
-        if i<len(color_points):
-            print("-------- COLOR OF POINT NOW IS:", color_points[i][2],"--------")
-        else:
-            print("-------- END OF TRAVEL --------")
+        # if i<len(color_points):
+        #     # print("-------- COLOR OF POINT NOW IS:", color_points[i][2],"--------")
+        # else:
+        #     print("-------- END OF TRAVEL --------")
             
         # step_point=np.copy(next_)
         next_=np.array([float(_color_points[i+1][0]),float(_color_points[i+1][1])])
@@ -138,23 +138,23 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
     x = [xx[0] for xx in path_points]
     y = [yy[1] for yy in path_points]
 
-    plt.xlim(BBox[0]-(BBox[1]-BBox[0])/10, BBox[1]+(BBox[1]-BBox[0])/10)
-    plt.ylim(BBox[2]-(BBox[3]-BBox[2])/10, BBox[3]+(BBox[3]-BBox[2])/10)
+    # plt.xlim(BBox[0]-(BBox[1]-BBox[0])/10, BBox[1]+(BBox[1]-BBox[0])/10)
+    # plt.ylim(BBox[2]-(BBox[3]-BBox[2])/10, BBox[3]+(BBox[3]-BBox[2])/10)
 
-    plt.scatter(x_all, y_all, marker='o', c='yellow') 
-    color_now='brown'
-    plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
-    color_now='gold'
-    plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
-    # plt.plot(x, y, '-', '-r')
-    plt.scatter(x, y, c='b', s=0.1)
-    # plt.scatter(x_all, y_all, marker='o', c='g') 
-    plt.show()
+    # plt.scatter(x_all, y_all, marker='o', c='yellow') 
+    # color_now='brown'
+    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+    # color_now='gold'
+    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+    # # plt.plot(x, y, '-', '-r')
+    # plt.scatter(x, y, c='b', s=0.1)
+    # # plt.scatter(x_all, y_all, marker='o', c='g') 
+    # plt.show()
 
     return path_points
 
-if __name__ == "__main__":
-    main([[1.0, 5.0, 'brown', 'false'], [7.0, 3.0, 'brown', 'false'], [10.0, 10.0, 'brown', 'false'], [2.5, 4.0, 'gold', 'false']], [[2.9, 4.0, 'white', 'false'], [1.2, 5.0, 'white', 'false'], [0.0, 0.0, 'white', 'false'], [9.0, 8.8, 'white', 'false'], [9.0, 6.7, 'white', 'false'], [2.0, 0.7, 'white', 'false'], [9.0, 6.7, 'white', 'false']])
+# if __name__ == "__main__":
+#     main([[1.0, 5.0, 'brown', 'false'], [7.0, 3.0, 'brown', 'false'], [10.0, 10.0, 'brown', 'false'], [2.5, 4.0, 'gold', 'false']], [[2.9, 4.0, 'white', 'false'], [1.2, 5.0, 'white', 'false'], [0.0, 0.0, 'white', 'false'], [9.0, 8.8, 'white', 'false'], [9.0, 6.7, 'white', 'false'], [2.0, 0.7, 'white', 'false'], [9.0, 6.7, 'white', 'false']])
 
 # , [3.5, 4.0, 'white', 'false']
 

@@ -22,6 +22,3 @@ def download_points():
     # print(f"Data downloaded and stored in list 'latitude_longitude_color_list':")
     # print(latitude_longitude_color_list)
     return latitude_longitude_color_list
-
-if __name__ == "__main__":
-    print(download_points())

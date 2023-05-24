@@ -13,6 +13,9 @@ from doggy import Walk, Doggy, DoggyAction, walk_forward
 from geoToLocal import geo_to_vector
 from firebase_fun import *
 import numpy as np
+from daria.Read_FindShortest_Travel.Read_FindShortest_Travel import optymalize_mission
+from time import sleep
+from set_dog_point import update_firestore_document
 
 class Dog_data:
     def __init__(self) -> None:
@@ -72,13 +75,13 @@ class Dog_data:
         self.start_mission = False
 
     def gps_callback(self, data):
-        lat = data.latitude
-        lon = data.longitude
+        self.lat = data.latitude
+        self.lon = data.longitude
         alt = data.altitude
         timestamp = data.header.stamp
 
         # Obliczanie prędkości
-        speed = self.calculate_speed(lat, lon, timestamp)
+        speed = self.calculate_speed(self.lat, self.lon, timestamp)
 
         if speed is not None and speed != 0:
             # Przetwarzanie prędkości
@@ -87,15 +90,16 @@ class Dog_data:
             rospy.loginfo(f"Speed: {speed} m/s")
 
         # Aktualizacja poprzednich danych
-        self.last_latitude = lat
-        self.last_longitude = lon
+        self.last_latitude = self.lat
+        self.last_longitude = self.lon
         self.last_timestamp = timestamp
         # Przetwarzanie danych GPS
         # Tutaj mozna umiescic dowolny kod przetwarzania danych
 
         # Przykladowe dzialanie - wyswietlanie danych
-        if lat != 0 or lon != 0:
-            rospy.loginfo(f"Received GPS data: Latitude: {lat}, Longitude: {lon}, Altitude: {alt}")
+        if self.lat != 0 or self.lon != 0:
+            # rospy.loginfo(f"Received GPS data: Latitude: {lat}, Longitude: {lon}, Altitude: {alt}")
+            update_firestore_document(self.lat, self.lon, alt, timestamp, speed)
 
 
 
@@ -201,11 +205,12 @@ class Dog_data:
         velocity, yaw_velocity = walk_forward(self.theta, [x_target, y_target], [0, 0])
         try:
             self.doggy.send_stick(0, velocity, yaw_velocity, 0)
-            rospy.sleep(0.1)
-            #obliczenie dystansu pomiędzy punktami
+            # rospy.sleep(0.1)
+            sleep(0.1)
+            #obliczenie dystans u pomiędzy punktami
         except KeyboardInterrupt:
             for _ in range(10):
-                rospy.sleep(0.1)
+                sleep(0.1)
                 self.doggy.send_stick(0, 0, 0, 0)
 
     def mission(self):
@@ -221,12 +226,11 @@ class Dog_data:
         i = 0
         while not rospy.is_shutdown() and self.start_mission:
             # tutaj dać algorytm do optymalizacji punktow i jak ma ona przebiegac 
-            points_to_walk = emum()
-            #TODO dokonczyc to 
+            points_to_walk = optymalize_mission()
             target_i = points_to_walk[i]
             position_target_lat, position_target_lon = target_i
-            x, y = geo_to_vector(self.position_dog_lat, self.position_dog_lon, position_target_lat, position_target_lon)
-            if np.sqrt((x) ** 2 + (y) ** 2) < 1:
+            x, y = geo_to_vector(self.lat, self.lon, position_target_lat, position_target_lon)
+            if np.sqrt((x) ** 2 + (y) ** 2) < 0.5:
                 i += 1
             else:
                 self.move_dog(x, y)
