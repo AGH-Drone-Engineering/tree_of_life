@@ -34,7 +34,7 @@ def check_if_is_close_to_any_point_in_list(point,all_points_list_, distance_, ex
         if distance_between_points(point,exclude)<distance_:
             continue
         if distance_between_points(p,point)<distance_:
-            # print("Close to point:", p)
+            print("Close to point:", p)
             return p
     return None
 
@@ -53,13 +53,13 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
     x_all = [float(xx[0]) for xx in all_points_list]
     y_all = [float(yy[1]) for yy in all_points_list]
 
-    # plt.scatter(x_all, y_all, marker='o', c='yellow') 
+    plt.scatter(x_all, y_all, marker='o', c='yellow') 
     
-    # color_now='brown'
-    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+    color_now='brown'
+    plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
     
-    # color_now='gold'
-    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+    color_now='gold'
+    plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
 
     
     BBox = (min(x_all), max(x_all), min(y_all), max(y_all))
@@ -79,14 +79,14 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
         # next_=np.array([float(color_points[i+1][0]),float(color_points[i+1][1])])
         
         # distance_=distance_between_points(step_point,next_)
-        # print("step_point:",step_point)
-        # print("next:",next_)
-        while distance_between_points(step_point, next_) > distance:
+        print("step_point:",step_point)
+        print("next:",next_)
+        while distance_between_points(step_point, next_)>distance:
             found_point=check_if_is_close_to_any_point_in_list(np.copy(step_point), tmp_all_points_list, distance, np.copy(start))
             
 
             if found_point is not None:
-                # print(distance_between_vector_and_point(step_point,next_, found_point))
+                print(distance_between_vector_and_point(step_point,next_, found_point))
                 angle_between_vectors=(get_angle_between_vectors(next_-step_point, found_point-step_point))
                 if angle_between_vectors>0:
 
@@ -126,10 +126,10 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
 
         #in this place we are close enough to aim
         #rotate dog and shoot
-        # if i<len(color_points):
-        #     # print("-------- COLOR OF POINT NOW IS:", color_points[i][2],"--------")
-        # else:
-        #     print("-------- END OF TRAVEL --------")
+        if i<len(color_points):
+            print("-------- COLOR OF POINT NOW IS:", color_points[i][2],"--------")
+        else:
+            print("-------- END OF TRAVEL --------")
             
         # step_point=np.copy(next_)
         next_=np.array([float(_color_points[i+1][0]),float(_color_points[i+1][1])])

@@ -18,7 +18,10 @@ def download_points():
         point = doc.to_dict()
         # print(point)
         latitude_longitude_color_list.append([point['location'].latitude, point['location'].longitude, point['type'], point['shooted']])
-    print(latitude_longitude_color_list)
+
     # print(f"Data downloaded and stored in list 'latitude_longitude_color_list':")
     # print(latitude_longitude_color_list)
     return latitude_longitude_color_list
+
+if __name__ == "__main__":
+    print(download_points())
