@@ -58,7 +58,7 @@ def geo_to_vector(lat1,lon1,lat2,lon2):
     vector_lat = skala*(lat2-lat1)
     vector_lon = skala*(lon2-lon1)
 
-    return [vector_lat, vector_lon]
+    return vector_lat,vector_lon
 
 def geo_to_local(lat1,lon1,lat2,lon2):
 
@@ -88,7 +88,7 @@ def geo_to_local(lat1,lon1,lat2,lon2):
 #lat2, lon2 = 49.92806, 19.8558
 
 # Te pozwalają na pobieranie danych z inputu
-# lat1,lon1,lat2,lon2 = list(map(float, input("Podaj [lat1,lon1,lat2,lon2]:\n").split()))
+lat1,lon1,lat2,lon2 = list(map(float, input("Podaj [lat1,lon1,lat2,lon2]:\n").split()))
 
 # Funkcja zwracająca "wektor"
-# print(geo_to_local(lat1,lon1,lat2,lon2))
+print(geo_to_local(lat1,lon1,lat2,lon2))

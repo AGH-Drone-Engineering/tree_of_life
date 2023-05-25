@@ -9,14 +9,15 @@ from threading import Thread
 import csv
 # from config import *
 import math
-from doggy import Walk, Doggy, DoggyAction, walk_forward
+from doggy import Doggy, DoggyAction, walk_forward
 # from geoToLocal import geo_to_vector
 from Maks.GeoToLocal_v2 import geo_to_local
 from firebase_fun import *
 import numpy as np
-from daria.Read_FindShortest_Travel.Read_FindShortest_Travel import optymalize_mission
+from daria.Read_FindShortest_Travel.Read_FindShortest_Travel import optimalize_points
 from time import sleep
 from set_dog_point import update_firestore_document
+
 
 class Dog_data:
     def __init__(self) -> None:
@@ -87,7 +88,8 @@ class Dog_data:
         self.lon = data.longitude
         # alt = data.altitude
         timestamp = data.header.stamp
-
+        self.theta = data.altitude
+        self.theta = np.deg2rad(self.theta)
         # Obliczanie prędkości
         speed = self.calculate_speed(self.lat, self.lon, timestamp)
 
@@ -95,6 +97,7 @@ class Dog_data:
         self.last_latitude = self.lat
         self.last_longitude = self.lon
         self.last_timestamp = timestamp
+
         # Przetwarzanie danych GPS
         # Tutaj mozna umiescic dowolny kod przetwarzania danych
 
@@ -159,20 +162,20 @@ class Dog_data:
                 rospy.loginfo("Error when trying to decode, after another try it will be OK")
             # Przetwarzanie i publikowanie danych
             # zmienilem na GNGGA, bo to nasz typ
-            if line.startswith('$GNGGA'):
+            if "RMC" in line:
                 data = line.split(',')
                 if len(data) >= 10:
                     try:
-                        lat = float(data[2]) / 100
+                        lat = float(data[3]) / 100
                         lon = float(data[4]) / 100
-                        alt = float(data[9])
+                        track_angle = float(data[6])
 
                         # Tworzenie wiadomosci NavSatFix
                         
                         gps_msg.header.stamp = rospy.Time.now()
                         gps_msg.latitude = lat
                         gps_msg.longitude = lon
-                        gps_msg.altitude = alt
+                        gps_msg.altitude = track_angle
                         # Publikowanie danych GPS
                         
                     except ValueError:
@@ -217,11 +220,11 @@ class Dog_data:
         try:
             self.doggy.send_stick(0, velocity, yaw_velocity, 0)
             # rospy.sleep(0.1)
-            sleep(0.1)
+            # sleep(0.1)
             #obliczenie dystans u pomiędzy punktami
         except KeyboardInterrupt:
             for _ in range(10):
-                sleep(0.1)
+                # sleep(0.1)
                 self.doggy.send_stick(0, 0, 0, 0)
 
     def mission(self):
@@ -233,7 +236,7 @@ class Dog_data:
 
         rospy.loginfo("DOG CAN START HIS MISSION")
         self.set_home = [self.lat, self.lon]
-        opt = optymalize_mission(self.set_home)
+        opt = optimalize_points(self.set_home)
        
         i = 0
         points_to_walk = opt
