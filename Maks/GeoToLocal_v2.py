@@ -64,20 +64,20 @@ def geo_to_local(lat1,lon1,lat2,lon2):
     Poniższe "printy" są tylko poglądowe: dla programisty, do analizy
     '''
 
-    print(f"Współrzędne geograficzne:[{lat1},{lon1}],[{lat2},{lon2}]")
-    print(f"Wektor geograficzny: [{lat2 - lat1},{lon2 - lon1}]\n")
+    # rint(f"Współrzędne geograficzne:[{lat1},{lon1}],[{lat2},{lon2}]")
+    # print(f"Wektor geograficzny: [{lat2 - lat1},{lon2 - lon1}]\n")
 
-    print(f"Współrzędne lokalne w metrach:[0,0],[{vector_lat:.4f},{vector_lon:.4f}]")
-    print(f"Wektor w metrach: [{vector_lat:.4f},{vector_lon:.4f}]\n")
+    # print(f"Współrzędne lokalne w metrach:[0,0],[{vector_lat:.4f},{vector_lon:.4f}]")
+    # print(f"Wektor w metrach: [{vector_lat:.4f},{vector_lon:.4f}]\n")
 
-    print(f"Dystans w metrach: {distance}")
+    # print(f"Dystans w metrach: {distance}")p
 
     return vector_lat,vector_lon
 
 # Ta linijka pobiera dwie pary współrzędnych: Szerokość i długość pierwszego punktu, oraz Szerokość i długość drugiego punktu
 # IN - Input    | lat/lon - szerokość,długość geograficzna  | 1/2 - nr podanego punktu
 
-IN_lat_1,IN_lon_1,IN_lat_2,IN_lon_2 = list(map(float, input("Podaj [lat1,lon1,lat2,lon2]:\n").split()))
+# IN_lat_1,IN_lon_1,IN_lat_2,IN_lon_2 = list(map(float, input("Podaj [lat1,lon1,lat2,lon2]:\n").split()))
 
 # Funkcja zwracająca "wektor"
-print(geo_to_local(IN_lat_1,IN_lon_1,IN_lat_2,IN_lon_2))
+# print(geo_to_local(IN_lat_1,IN_lon_1,IN_lat_2,IN_lon_2))

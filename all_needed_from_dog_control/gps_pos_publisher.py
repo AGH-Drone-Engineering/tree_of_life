@@ -10,7 +10,8 @@ import csv
 # from config import *
 import math
 from doggy import Walk, Doggy, DoggyAction, walk_forward
-from geoToLocal import geo_to_vector
+# from geoToLocal import geo_to_vector
+from Maks.GeoToLocal_v2 import geo_to_local
 from firebase_fun import *
 import numpy as np
 from daria.Read_FindShortest_Travel.Read_FindShortest_Travel import optymalize_mission
@@ -62,32 +63,32 @@ class Dog_data:
         self.camera_360.daemon = True
         self.camera_360.start()
 
+        self.doggy = Doggy()
+        self.doggy.wait_connected()
+        self.doggy.send_action(DoggyAction.WALK)
+        self.start_mission = False
+
+
         self.mission_control = Thread(target=self.mission, args=())
         self.mission_control.daemon = True
         self.mission_control.start()
 
-
+        self.keyboard = Thread(target=self.keyboard_con, args=())
+        self.keyboard.daemon = True
+        self.keyboard.start()
         #inicjalizacja psa i połączenia z nim
-        self.doggy = Doggy()
-        self.doggy.wait_connected()
-        self.doggy.send_action(DoggyAction.WALK)
-
-        self.start_mission = False
+        
+        self.come_back_home = False
+        self.STOP_MISSION = False
 
     def gps_callback(self, data):
         self.lat = data.latitude
         self.lon = data.longitude
-        alt = data.altitude
+        # alt = data.altitude
         timestamp = data.header.stamp
 
         # Obliczanie prędkości
         speed = self.calculate_speed(self.lat, self.lon, timestamp)
-
-        # if speed is not None and speed != 0:
-            # Przetwarzanie prędkości
-            # Tutaj można umieścić dowolny kod przetwarzania prędkości
-            # Na przykład, wyświetlanie prędkości
-            # rospy.loginfo(f"Speed: {speed} m/s")
 
         # Aktualizacja poprzednich danych
         self.last_latitude = self.lat
@@ -99,7 +100,7 @@ class Dog_data:
         # Przykladowe dzialanie - wyswietlanie danych
         if self.lat != 0 or self.lon != 0:
             # rospy.loginfo(f"Received GPS data: Latitude: {lat}, Longitude: {lon}, Altitude: {alt}")
-            update_firestore_document(self.lat, self.lon, alt, timestamp, speed)
+            update_firestore_document(self.lat, self.lon, 0, timestamp, speed)
 
 
 
@@ -235,22 +236,45 @@ class Dog_data:
                     rospy.logerror("ROSPY HAS PROBLEMS WITH COMMUNICATION")
 
         i = 0
+        points_to_walk = opt
         while not rospy.is_shutdown() and self.start_mission:
-            # tutaj dać algorytm do optymalizacji punktow i jak ma ona przebiegac 
-            points_to_walk = opt
+            if self.STOP_MISSION:
+                self.doggy.send_stick(0, 0, 0, 0)
+                break
+            elif self.come_back_home:
+                i = 0
+                points_to_walk = [self.set_home]
+
             target_i = points_to_walk[i]
             position_target_lat, position_target_lon = target_i
-            x, y = geo_to_vector(self.lat, self.lon, position_target_lat, position_target_lon)
+            x, y = geo_to_local(self.lat, self.lon, position_target_lat, position_target_lon)
             if np.sqrt((x) ** 2 + (y) ** 2) < 0.5:
                 i += 1
+                self.doggy.send_stick(0, 0, 0, 0)
+                break
             else:
                 self.move_dog(x, y)
-                
+           
+    
+    def keyboard_con(self):
+        while not rospy.is_shutdown():
+            try:
+                key = input("Set new command!\n")
+                self.on_release(key)
+                if self.STOP_MISSION== True:
+                    break
+            except Exception as e:
+                rospy.logerr(e)
 
+    def on_release(self, key):
+        if key =='q':
+            self.STOP_MISSION = True
+        elif key == 't':
+            self.come_back_home = True
 
 if __name__ == '__main__':
 
     dog_control = Dog_data()
-
+    rospy.sleep(2)
     dog_control.publish_camera_video()
 
