@@ -80,6 +80,7 @@ class Dog_data:
         
         self.come_back_home = False
         self.STOP_MISSION = False
+        self.start_mission = False
 
     def gps_callback(self, data):
         self.lat = data.latitude
@@ -224,38 +225,40 @@ class Dog_data:
                 self.doggy.send_stick(0, 0, 0, 0)
 
     def mission(self):
-        while not rospy.is_shutdown() and self.start_mission == False:
+        rate = rospy.Rate(10)
+        while not rospy.is_shutdown():
             if is_drone_on_ground():
-                self.start_mission = True
-            else:
-                if self.start_mission:
-                    rospy.loginfo("DOG CAN START HIS MISSION")
-                    self.set_home = [self.lat, self.lon]
-                    opt = optymalize_mission(self.set_home)
-                else:
-                    rospy.logerror("ROSPY HAS PROBLEMS WITH COMMUNICATION")
+                break
+            rate.sleep()
 
+        rospy.loginfo("DOG CAN START HIS MISSION")
+        self.set_home = [self.lat, self.lon]
+        opt = optymalize_mission(self.set_home)
+       
         i = 0
         points_to_walk = opt
-        while not rospy.is_shutdown() and self.start_mission:
-            if self.STOP_MISSION:
+        while not rospy.is_shutdown():
+            if self.STOP_MISSION == 1:
                 self.doggy.send_stick(0, 0, 0, 0)
                 break
             elif self.come_back_home:
                 i = 0
                 points_to_walk = [self.set_home]
 
-            target_i = points_to_walk[i]
-            position_target_lat, position_target_lon = target_i
-            x, y = geo_to_local(self.lat, self.lon, position_target_lat, position_target_lon)
-            if np.sqrt((x) ** 2 + (y) ** 2) < 0.5:
-                i += 1
-                self.doggy.send_stick(0, 0, 0, 0)
-                break
-            else:
-                self.move_dog(x, y)
-           
-    
+            if self.start_mission_dog == True:
+                target_i = points_to_walk[i]
+                position_target_lat, position_target_lon = target_i
+                x, y = geo_to_local(self.lat, self.lon, position_target_lat, position_target_lon)
+                if np.sqrt((x) ** 2 + (y) ** 2) < 1:
+                    i += 1
+                    
+                    if len(points_to_walk) <= i:
+                        self.doggy.send_stick(0, 0, 0, 0)
+                        break
+                else:
+                    self.move_dog(x, y)
+            
+            rate.sleep()
     def keyboard_con(self):
         while not rospy.is_shutdown():
             try:
@@ -271,6 +274,8 @@ class Dog_data:
             self.STOP_MISSION = True
         elif key == 't':
             self.come_back_home = True
+        elif key == 's':
+            self.start_mission_dog = True 
 
 if __name__ == '__main__':
 
