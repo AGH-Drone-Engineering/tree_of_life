@@ -6,7 +6,9 @@ import pid
 
 def optimalize_points(start_point):
     #download points from database
+    # print("here")
     latitude_longitude_color_list=pobierz_punkty_z_bazy_do_listy.download_points()
+    # print("here")
     # print(latitude_longitude_color_list)
 
     #create lists based on colors
@@ -22,7 +24,7 @@ def optimalize_points(start_point):
     #find shortest path
     points_to_shoot:list = [(start_point)]+brown_points+gold_points
     # print("points to shoot: ",points_to_shoot)
-    points_to_shoot=PuLP.main(points_to_shoot)
+    points_to_shoot=PuLP.main(points_to_shoot, print_route=False)
     # print(points_to_shoot)
 
     #get path to travel
@@ -32,8 +34,9 @@ def optimalize_points(start_point):
     items.rotate(-1* points_to_shoot.index(start_point))
     # print(list(items))
     # exit()
-    return pid.main(color_points=list(items)[1:], white_points=white_points, _start=np.array(start_point), distance=0.00005)
+    return pid.main(color_points=list(items)[1:], white_points=white_points, _start=np.array(start_point), distance=0.00005, print_route=False)
 
     
 if __name__=="__main__":
+
     print(optimalize_points(start_point=[50.06296, 19.91573,"white", "false"]))
