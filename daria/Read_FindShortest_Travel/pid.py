@@ -40,7 +40,7 @@ def check_if_is_close_to_any_point_in_list(point,all_points_list_, distance_, ex
     return None
 
 #get path
-def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0.5):
+def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0.5, print_route=False):
     start=np.array([float(_start[0]),float(_start[1])])
     all_points_list=np.copy(color_points+white_points)
     all_points_list = np.unique(all_points_list, axis=0)  # remove duplicate points
@@ -144,22 +144,23 @@ def main(color_points, white_points, _start=[0.,0.,"white", "false"], distance=0
         # step_point=np.copy(next_)
         next_=np.array([float(_color_points[i+1][0]),float(_color_points[i+1][1])])
 
-    
-    x = [xx[0] for xx in path_points]
-    y = [yy[1] for yy in path_points]
+    if print_route:
+        x = [xx[0] for xx in path_points]
+        y = [yy[1] for yy in path_points]
 
-    plt.xlim(BBox[0]-(BBox[1]-BBox[0])/10, BBox[1]+(BBox[1]-BBox[0])/10)
-    # plt.ylim(BBox[2]-(BBox[3]-BBox[2])/10, BBox[3]+(BBox[3]-BBox[2])/10)
+        plt.xlim(BBox[0]-(BBox[1]-BBox[0])/10, BBox[1]+(BBox[1]-BBox[0])/10)
+        # plt.ylim(BBox[2]-(BBox[3]-BBox[2])/10, BBox[3]+(BBox[3]-BBox[2])/10)
 
-    # plt.scatter(x_all, y_all, marker='o', c='yellow') 
-    # color_now='brown'
-    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
-    # color_now='gold'
-    # plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
-    # # plt.plot(x, y, '-', '-r')
-    # plt.scatter(x, y, c='b', s=0.1)
-    # # plt.scatter(x_all, y_all, marker='o', c='g') 
-    # plt.show()
+
+        plt.scatter(x_all, y_all, marker='o', c='yellow') 
+        color_now='brown'
+        plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+        color_now='gold'
+        plt.scatter([float(xx[0]) for xx in color_points if xx[2]==color_now], [float(yy[1]) for yy in color_points if yy[2]==color_now], marker='o', c=color_now) 
+        # plt.plot(x, y, '-', '-r')
+        plt.scatter(x, y, c='b', s=0.1)
+        # plt.scatter(x_all, y_all, marker='o', c='g') 
+        plt.show()
 
     return [list(xx) for xx in path_points]
 
