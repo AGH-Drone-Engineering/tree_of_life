@@ -24,7 +24,7 @@ def optimalize_points(start_point):
     #find shortest path
     points_to_shoot:list = [(start_point)]+brown_points+gold_points
     # print("points to shoot: ",points_to_shoot)
-    points_to_shoot=PuLP.main(points_to_shoot, print_route=False)
+    points_to_shoot=PuLP.main(points_to_shoot)
     # print(points_to_shoot)
 
     #get path to travel
