@@ -1,7 +1,7 @@
 import rospy
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 import cv2
+from cv_bridge import CvBridge
 #import NavSatFix
 from sensor_msgs.msg import NavSatFix
 import serial
@@ -281,7 +281,7 @@ class Dog_data:
             self.start_mission_dog = True 
 
 if __name__ == '__main__':
-
+    print('haaaaaaalo')
     dog_control = Dog_data()
     rospy.sleep(2)
     dog_control.publish_camera_video()

@@ -1,0 +1,11 @@
+version: '3'
+services:
+  roscore:
+    image: ros:noetic-ros-core
+    restart: always
+    command: roscore
+  dog_control:
+    build: ./all_needed_from_dog_control
+    restart: always
+    depends_on:
+      - roscore
